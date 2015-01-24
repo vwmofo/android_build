@@ -11,14 +11,26 @@ endef
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
     qcom_flags := -DQCOM_HARDWARE
+	
+	ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+        TARGET_USES_QCOM_BSP := true
+        TARGET_GLOBAL_CFLAGS += -DQCOM_BSP
+        TARGET_GLOBAL_CPPFLAGS += -DQCOM_BSP
+    endif
+	
     TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
     # Enable DirectTrack for legacy targets
     ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
-        ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
-            qcom_flags += -DQCOM_DIRECTTRACK
-        endif
-        # Enable legacy graphics functions
+    ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
+        qcom_flags += -DQCOM_DIRECTTRACK
+    endif
+        ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+			# Enable legacy graphics functions
+			TARGET_USES_QCOM_BSP_LEGACY := true
+			TARGET_GLOBAL_CFLAGS += -DQCOM_BSP_LEGACY
+			TARGET_GLOBAL_CPPFLAGS += -DQCOM_BSP_LEGACY
+		endif
     endif
 
     TARGET_GLOBAL_CFLAGS += $(qcom_flags)
